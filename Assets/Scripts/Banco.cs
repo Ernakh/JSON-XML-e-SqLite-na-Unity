@@ -23,7 +23,9 @@ public class Banco : MonoBehaviour
     private IDbCommand command;
     private IDataReader reader;
 
-    private string stringConexao = "URI=File:meuBanco.db";
+    //private string stringConexao = "Data Source=meuBanco.db;Version=3;foreign_keys = ON;";
+    //private string stringConexao = "URI=File:meuBanco.db;PRAGMA foreign_keys = ON;";
+    private string stringConexao = "URI=File:meuBanco.db;";
 
     // Start is called before the first frame update
     void Start()
@@ -39,15 +41,21 @@ public class Banco : MonoBehaviour
             command = conec.CreateCommand();
             conec.Open();
 
-            string comandoSql = "CREATE TABLE IF NOT EXISTS USUARIOS(ID INTEGER PRIMARY KEY AUTOINCREMENT, NOME VARCHAR(50));";
+            //command.Transaction = conec.BeginTransaction();
 
-            command.CommandText = comandoSql;
+            command.CommandText = "PRAGMA foreign_keys = ON;  CREATE TABLE IF NOT EXISTS USUARIOS" +
+                "(ID INTEGER PRIMARY KEY AUTOINCREMENT, NOME VARCHAR(50));";
+
             command.ExecuteNonQuery();
+
+            //command.Transaction.Commit();
 
             return true;
         }
         catch (System.Exception ex)
         {
+            print(ex.Message);
+            //command.Transaction.Rollback();
             return false;
         }
         finally
@@ -60,7 +68,9 @@ public class Banco : MonoBehaviour
     {
         try
         {
+            print(conec.State);
             conectar();
+            print(conec.State);
 
             //string comandoSql = "INSERT INTO USUARIOS(NOME) VALUES ($nome);";
             string comandoSql = "INSERT INTO USUARIOS(NOME) VALUES ('" + nome + "');";
@@ -77,7 +87,39 @@ public class Banco : MonoBehaviour
         }
         finally
         {
+            conec.Close();
+        }
+    }
 
+    public bool inserirScalar(string nome)
+    {
+        try
+        {
+            print(conec.State);
+            conectar();
+            print(conec.State);
+
+            int idInserido;
+
+            //string comandoSql = "INSERT INTO USUARIOS(NOME) VALUES ($nome);";
+            string comandoSql = "INSERT INTO USUARIOS(NOME) VALUES ('" + nome + "');" +
+                                "SELECT CAST(scope_identity() AS int)";
+
+            command.CommandText = comandoSql;
+            //command.Parameters.Add(nome);
+            idInserido = (int)command.ExecuteScalar();
+
+            //inserir em uma tabela que tenha FK
+
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            return false;
+        }
+        finally
+        {
+            conec.Close();
         }
     }
 
@@ -112,7 +154,7 @@ public class Banco : MonoBehaviour
         }
         finally
         {
-
+            conec.Close();
         }
     }
 
@@ -122,7 +164,8 @@ public class Banco : MonoBehaviour
         {
             conectar();
 
-            string comandoSql = "UPDATE USUARIOS SET NOME = '" + nome + "' WHERE ID = " + id + ";";
+            string comandoSql = "UPDATE USUARIOS SET NOME = '" + nome + "' " +
+                "WHERE ID = " + id + ";";
             //string comandoSql = "UPDATE USUARIOS SET NOME = $nome WHERE ID = $id;";
 
             command.CommandText = comandoSql;
@@ -140,7 +183,7 @@ public class Banco : MonoBehaviour
         }
         finally
         {
-
+            conec.Close();
         }
     }
 
@@ -167,7 +210,7 @@ public class Banco : MonoBehaviour
         }
         finally
         {
-
+            conec.Close();
         }
     }
 }

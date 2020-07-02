@@ -34,8 +34,7 @@ public class json : MonoBehaviour
 
         string json = "";
 
-        string filePath = Path.Combine(Application.streamingAssetsPath, 
-            user.login + ".json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, user.login + ".json");
 
         print(filePath);
 

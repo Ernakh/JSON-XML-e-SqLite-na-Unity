@@ -9,6 +9,7 @@ public class xml : MonoBehaviour
 {
     public Text nome;
     public Text senha;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,18 +24,21 @@ public class xml : MonoBehaviour
 
     public void gravar()
     {
+        string filePath = Path.Combine(Application.streamingAssetsPath, "user.xml");
         List<User> lista = new List<User>();
 
         User user = new User();
         user.login = nome.text;
         user.senha = senha.text;
 
+        //tratar/validar usuarios
+
         print("Login: " + user.login);
         print("Senha: " + user.senha);
 
         lista.Add(user);
 
-        string filePath = Path.Combine(Application.streamingAssetsPath, "user.xml");
+       
 
         print(filePath);
 
@@ -52,12 +56,27 @@ public class xml : MonoBehaviour
         }
         else
         {
+            XmlSerializer serializerVerificacao = new XmlSerializer(typeof(List<User>));
+            StreamReader leitor = new StreamReader(filePath);
+            List<User> usuariosAtuais = (List<User>)serializerVerificacao.Deserialize(leitor.BaseStream);
+            leitor.Close();
+
+            foreach (User item in usuariosAtuais)
+            {
+                if (user.login == item.login)
+                {
+                    print("Usuário " + user.login + " já existe");
+                    return;
+                }
+            }
+
             XmlSerializer serializer = new XmlSerializer(typeof(List<User>));
             StreamReader reader = new StreamReader(filePath);
             List<User> deserialized = (List<User>)serializer.Deserialize(reader.BaseStream);
             reader.Close();
 
             deserialized.Add(user);
+            //deserialized.AddRange(lista);
 
             StreamWriter writer = new StreamWriter(filePath);
             serializer.Serialize(writer.BaseStream, deserialized);
