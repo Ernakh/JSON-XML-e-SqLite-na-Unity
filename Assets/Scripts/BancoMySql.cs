@@ -16,7 +16,7 @@ public class BancoMySql
 
         public MySqlConnection abrirConexao()
         {
-            string conec = "Server=gamesunity.mysql.dbaas.com.br;Database=gamesunity;User Id=gamesunity;Password=ufn_unity;";
+            string conec = "Server=xxxxxx.mysql.dbaas.com.br;Database=gamesunity;User Id=xxxxxx;Password=xxxx;";
             MySqlConnection cn = conexao(conec);
 
             try
